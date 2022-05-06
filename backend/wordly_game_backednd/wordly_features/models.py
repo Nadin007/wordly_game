@@ -1,9 +1,11 @@
 from datetime import datetime
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models.functions import Lower
-from user.models import User
 from django.db.models import constraints
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models.functions import Lower
+
+from user.models import User
 
 
 class Words(models.Model):
@@ -28,7 +30,7 @@ class Words(models.Model):
 
 class DayChallenge(models.Model):
     word = models.ForeignKey(
-        Words, on_delete=models.SET_NULL,
+        Words, on_delete=models.SET_DEFAULT, default='Deleted_word',
         verbose_name='entered word', related_name='challenge')
     date = models.DateTimeField(
         verbose_name='date of adding', default=datetime.now)
@@ -51,12 +53,12 @@ class DayChallenge(models.Model):
 class UserWord(models.Model):
     '''Model that connects Word with User.'''
     word = models.ForeignKey(
-        Words, on_delete=models.SET_NULL,
+        Words, on_delete=models.SET_DEFAULT, default='Deleted_word',
         verbose_name='entered word_id', related_name='user_word')
     task = models.ForeignKey(
         DayChallenge,
         verbose_name='hidden word_id', related_name='user_word',
-        on_delete=models.SET_NULL)
+        on_delete=models.SET_DEFAULT, default='Deleted_task')
     player = models.ForeignKey(
         User, verbose_name='id_user',
         on_delete=models.CASCADE, related_name='user_word')

@@ -1,11 +1,11 @@
 import random
 
 from django.shortcuts import get_object_or_404
-
-from .serializers import DayChallengeSerializer, WordInputSerializer
-from .models import Words, DayChallenge
-from rest_framework import generics, permissions, response, status
+from rest_framework import mixins, permissions, response, status, viewsets, filters
 from rest_framework.decorators import action
+
+from .models import DayChallenge, UserWord, Words
+from .serializers import DayChallengeSerializer, WordInputSerializer
 
 
 def random_word():
@@ -32,7 +32,7 @@ def daily_word():
 
 
 @action(detail=True, methods=['POST', 'DELETE'],
-        url_path='day_challenge',
+        url_path='daychallenge',
         permission_classes=[permissions.IsAdminUser],)
 def day_word(request, pk):
     if request.method == 'POST':
@@ -47,16 +47,59 @@ def day_word(request, pk):
         return del_word(request, pk)
 
 
-class UserWordViewSet(generics.CreateAPIView):
-    permission_classes = (permissions.AllowAny,)
+class CustomizedListCreateViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Base ViewSet for wordly.
+    Allowed actions: `list`, `create`.
+    Other actions returns HTTP 405.
+    """
+    filter_backends = (filters.SearchFilter)
+    search_fields = ("word",)
+    lookup_field = "word"
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UserWordViewSet(CustomizedListCreateViewSet):
     serializer_class = WordInputSerializer
+
+    def get_queryset(self):
+        """Return queryset for ViewSet."""
+        task = get_object_or_404(
+            DayChallenge, id=self.kwargs.get("task"))
+        return task.user_word.select_related("player").all()
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def perform_create(self, serializer):
         word = serializer.data['word']
         player = serializer.data['player']
-        task = 
-        attempt = 
-
-        return super().perform_create(serializer)
-
-
+        task = serializer.data['task']
+        attempt = serializer.data['attempt']
+        if attempt > 6:
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        elif word == task:
+            try:
+                attempt += 1
+                UserWord.objects.create(
+                    word=word, player=player, task=task, attempt=attempt)
+                return response.Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            except Exception as inst:
+                raise Exception(f'Somthing wrong happended {inst}')
+        else:
+            try:
+                attempt += 1
+                UserWord.objects.create(
+                    word=word, player=player, task=task, attempt=attempt)
+                return response.Response(
+                    serializer.data, status=status.HTTP_200_OK
+                )
+            except Exception as inst:
+                raise Exception(f'Somthing wrong happended {inst}')

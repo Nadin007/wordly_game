@@ -1,8 +1,9 @@
 from ast import IsNot
-from imp import source_from_cache
-from rest_framework import serializers
-from .models import DayChallenge, Words, UserWord
 from datetime import datetime
+
+from rest_framework import serializers
+
+from .models import DayChallenge, UserWord, Words
 
 
 class WordSerializer(serializers.ModelSerializer):
@@ -22,17 +23,21 @@ class DayChallengeSerializer(serializers.ModelSerializer):
 class WordInputSerializer(serializers.ModelSerializer):
     '''Serializer for UserWord'''
     player = serializers.ReadOnlyField(
-        source_from_cache="user_token",
         read_only=True
     )
     task = serializers.ReadOnlyField(
         source=DayChallenge.objects.filter(
             date=datetime.now().strftime('%Y-%m-%d'))
     )
+    attempt = serializers.SerializerMethodField('get_attempt')
 
     class Meta:
         model = UserWord
         fields = ("id", "word", "task", "player", "attempt")
+
+    def get_attempt(self, instance):
+        return UserWord.objects.filter(
+            player=instance.player, task=instance.task).all().count()
 
     def validate(self, attrs):
         """Checks that the player can enter only the word
