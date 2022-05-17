@@ -14,10 +14,6 @@ class Words(models.Model):
         verbose_name='word value', max_length=5,
         unique=True
     )
-    is_active = models.BooleanField(
-        verbose_name='Is word in use',
-        default=False
-    )
 
     class Meta:
         ordering = [Lower('word')]
@@ -30,13 +26,20 @@ class Words(models.Model):
 
 class DayChallenge(models.Model):
     word = models.ForeignKey(
-        Words, on_delete=models.SET_DEFAULT, default='Deleted_word',
+        Words, on_delete=models.SET_DEFAULT, default=None,
         verbose_name='entered word', related_name='challenge')
     date = models.DateTimeField(
         verbose_name='date of adding', default=datetime.now)
     STRING_METHOD_MESSAGE = (
         'word: {word.word}, date:{date}'
     )
+    is_active = models.BooleanField(
+        verbose_name='Is word in use',
+        default=False
+    )
+    player = models.ForeignKey(
+        User, verbose_name='id_user',
+        on_delete=models.CASCADE, related_name='challenge')
 
     class Meta:
         ordering = ['-date']
@@ -53,15 +56,12 @@ class DayChallenge(models.Model):
 class UserWord(models.Model):
     '''Model that connects Word with User.'''
     word = models.ForeignKey(
-        Words, on_delete=models.SET_DEFAULT, default='Deleted_word',
+        Words, on_delete=models.SET_DEFAULT, default=None,
         verbose_name='entered word_id', related_name='user_word')
     task = models.ForeignKey(
         DayChallenge,
         verbose_name='hidden word_id', related_name='user_word',
-        on_delete=models.SET_DEFAULT, default='Deleted_task')
-    player = models.ForeignKey(
-        User, verbose_name='id_user',
-        on_delete=models.CASCADE, related_name='user_word')
+        on_delete=models.SET_DEFAULT, default=None)
     attempt = models.PositiveIntegerField(
         verbose_name='user\'s tryes', default=0,
         validators=[
@@ -74,7 +74,7 @@ class UserWord(models.Model):
         verbose_name_plural = 'UserWords'
         constraints = [
             constraints.UniqueConstraint(
-                fields=['word', 'task', 'player'],
+                fields=['word', 'task'],
                 name='prevention doubling'
             )
         ]
