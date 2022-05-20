@@ -8,6 +8,9 @@ from django.db.models.functions import Lower
 from user.models import User
 
 
+NEW_FORMAT = '%Y-%m-%d %H:%M'
+
+
 class Words(models.Model):
     ''''Model for words bank.'''
     word = models.CharField(
@@ -26,7 +29,7 @@ class Words(models.Model):
 
 class DayChallenge(models.Model):
     word = models.ForeignKey(
-        Words, on_delete=models.SET_DEFAULT, default=None,
+        Words, on_delete=models.CASCADE,
         verbose_name='entered word', related_name='challenge')
     date = models.DateTimeField(
         verbose_name='date of adding', default=datetime.now)
@@ -45,25 +48,29 @@ class DayChallenge(models.Model):
         ordering = ['-date']
         verbose_name = 'DayChallenge'
         verbose_name_plural = 'DayChallenges'
+        constraints = [constraints.UniqueConstraint(
+            fields=['player', 'word'], name='unique task to player')]
 
     def __str__(self) -> str:
         return self.STRING_METHOD_MESSAGE.format(
+            player=self.player,
             word=self.word,
-            date=self.date
+            is_active=self.is_active,
+            date=datetime.strftime(self.date, NEW_FORMAT)
         )
 
 
 class UserWord(models.Model):
     '''Model that connects Word with User.'''
     word = models.ForeignKey(
-        Words, on_delete=models.SET_DEFAULT, default=None,
-        verbose_name='entered word_id', related_name='user_word')
+        Words, on_delete=models.CASCADE,
+        verbose_name='entered word', related_name='user_word', max_length=5)
     task = models.ForeignKey(
         DayChallenge,
-        verbose_name='hidden word_id', related_name='user_word',
-        on_delete=models.SET_DEFAULT, default=None)
+        verbose_name='hidden word', related_name='user_word',
+        on_delete=models.CASCADE, max_length=5)
     attempt = models.PositiveIntegerField(
-        verbose_name='user\'s tryes', default=0,
+        verbose_name='attempt number', default=0,
         validators=[
             MinValueValidator(0),
             MaxValueValidator(6)]
@@ -80,4 +87,4 @@ class UserWord(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f'{self.player}, - {self.word}'
+        return f'{self.task}, - {self.word}'

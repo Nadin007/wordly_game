@@ -2,8 +2,7 @@ from rest_framework.decorators import action
 import random
 
 from django.shortcuts import get_object_or_404
-from rest_framework import mixins, permissions, response, status, viewsets, filters
-
+from rest_framework import mixins, permissions, response, status, viewsets
 from .models import DayChallenge, UserWord, Words
 from .serializers import ChallengeSerializer, WordInputSerializer, ChallengeWordSerializer
 
@@ -74,8 +73,9 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(is_active=True, word=get_word(), player=request.user)
+            data = {'status': "New challenge has been created"}
             return response.Response(
-                serializer.data, status=status.HTTP_201_CREATED)
+                data, status=status.HTTP_201_CREATED)
         return response.Response(
             serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,8 +108,7 @@ class CustomizedListCreateViewSet(
     Allowed actions: `list`, `create`.
     Other actions returns HTTP 405.
     """
-    filter_backends = (filters.SearchFilter)
-    search_fields = ("word",)
+
     lookup_field = "word"
     permission_classes = [permissions.IsAuthenticated]
 
@@ -118,7 +117,6 @@ class UserWordViewSet(CustomizedListCreateViewSet):
     serializer_class = WordInputSerializer
 
     def list(self, request, *args, **kwargs):
-        print(request.user)
         task = get_object_or_404(
             DayChallenge, is_active=True, player=request.user.id)
         words = Words.objects.filter(user_word__task=task)
@@ -129,24 +127,25 @@ class UserWordViewSet(CustomizedListCreateViewSet):
         response_data.is_valid(raise_exception=True)
         return super().list(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        print('11111111111')
-        word = serializer.data['word']
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        word = Words.objects.get(word=serializer.data['word'])
         player = self.request.user
-        print(word, player)
-        task = DayChallenge.objects.filter(is_active=True, player=player)[0]
-        print(task)
+
+        task = DayChallenge.objects.get(is_active=True, player=player)
         attempt = UserWord.objects.filter(task=task.id).count()
-        print(attempt)
         if attempt > 6:
             return response.Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
-        elif word == task.word:
+        if word == task.word:
             try:
                 attempt += 1
                 UserWord.objects.create(
-                    word=word, player=player, task=task.word, attempt=attempt)
+                    word=word, task=task, attempt=attempt)
+                task.is_active = False
+                task.save()
                 data = {'response': [1, 1, 1, 1, 1]}
                 return response.Response(
                     data, status=status.HTTP_201_CREATED
@@ -157,11 +156,13 @@ class UserWordViewSet(CustomizedListCreateViewSet):
             try:
                 attempt += 1
                 UserWord.objects.create(
-                    word=word, player=player, task=task.word, attempt=attempt)
-                for el in word:
-                    pass
+                    word=word, task=task, attempt=attempt)
+                data = {'response': rewiever(word.word, task.word.word)}
+                if attempt == 6:
+                    task.is_active = False
+                    task.save()
                 return response.Response(
-                    serializer.data, status=status.HTTP_200_OK
+                    data, status=status.HTTP_200_OK
                 )
             except Exception as inst:
                 raise Exception(f'Somthing wrong happended {inst}')

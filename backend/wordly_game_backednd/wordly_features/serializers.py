@@ -52,29 +52,45 @@ class ChallengeWordSerializer(serializers.Serializer):
 
 class WordInputSerializer(serializers.ModelSerializer):
     '''Serializer for UserWord'''
-    player = serializers.ReadOnlyField(
-        read_only=True
-    )
     word = serializers.CharField(max_length=5, required=True)
 
     class Meta:
         model = UserWord
-        fields = ("id", "word", "player", "attempt")
+        fields = ("id", "word", "attempt")
 
-    def validate(self, attrs, **kwargs):
+    def validate(self, attrs):
         """Checks that the player can enter only the word
         that is in the database.
         """
 
         if not self.context["request"].method == "POST":
             return attrs
-        task = get_object_or_404(DayChallenge, is_active=True, player=self.context['request'].user)
-        UserWord.objects.filter(task=task.id).all().count()
+        request = self.context.get('request', None)
+        task = get_object_or_404(DayChallenge, is_active=True, player=request.user)
+        if not task:
+            raise ValidationError(
+                'Task didn`t find'
+            )
+
+        # UserWord.objects.filter(task=task.id).all().count()
+
+        queryset = UserWord.objects.filter(task__is_active=True, task__player=request.user).prefetch_related('word')
         word = self.initial_data.get('word')
+
+        if len(word) != 5:
+            raise ValidationError(
+                'Word length must equal be 5.'
+            )
+
         if not Words.objects.filter(word=word).exists():
             raise serializers.ValidationError(
                 (
                     "There is not such word in the database."
                 )
+            )
+        word_list = [el.word.word for el in queryset]
+        if word in word_list:
+            raise ValidationError(
+                'Prevention of duplicate words in one task.'
             )
         return attrs
