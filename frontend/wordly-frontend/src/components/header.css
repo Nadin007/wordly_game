@@ -1,0 +1,16 @@
+header {
+    width: 100%;
+    border-bottom: 1px solid rgb(194, 231, 9);
+    padding: 10px;
+    display: flex;
+    overflow: hidden; /* hide all content which escapes currrent element*/
+}
+
+.header-title {
+    font-size: 1.8rem;
+    font-weight: bolder;
+    color: var(--header-color, #000);
+    flex: 2 1 auto; /* help to grow of shrink element sizes. Do not work without min width*/
+    min-width: 50px;
+    text-align: center;
+}

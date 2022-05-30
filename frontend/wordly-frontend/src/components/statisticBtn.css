@@ -1,0 +1,7 @@
+.statistic-btn {
+    border: none;
+    background-image: url('./statistics-svgrepo-com.svg');
+    width: 28px;
+    height: 28px;
+    background-color: var(--main-background, #fff);
+}

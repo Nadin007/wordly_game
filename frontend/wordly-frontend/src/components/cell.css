@@ -1,0 +1,29 @@
+.letter-cell {
+    border: 2px solid rgb(53, 51, 51);
+    width: 60px;
+    height: 60px;
+    display: flex; /* put elements in one line */
+    justify-content: center;
+    align-items: center;
+    font-size: 2.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.letter-cell-success {
+    background-color: #6aaa64;
+    color: #fff;
+    border-color: #6aaa64;
+}
+
+.letter-cell-exist {
+    background-color: #c9b458;
+    color: #fff;
+    border-color: #c9b458;
+}
+
+.letter-cell-fail {
+    background-color: rgb(125, 121, 121);
+    color: #fff;
+    border-color: rgb(125, 121, 121);
+}

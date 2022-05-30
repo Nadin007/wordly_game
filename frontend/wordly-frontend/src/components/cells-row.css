@@ -1,0 +1,7 @@
+.cells-row {
+    display: flex;
+}
+
+.cells-row > .letter-cell {
+    margin: 3px;
+}
