@@ -1,5 +1,7 @@
 import uuid
+
 from rest_framework import generics, permissions, response, status
+
 from .models import User
 from .serializers import CustomUserCreateSerializer
 

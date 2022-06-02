@@ -1,6 +1,8 @@
 import glob
-from wordly_features.models import Words
+
 from django.core.management.base import BaseCommand, CommandParser
+
+from wordly_features.models import Words
 
 
 class Command(BaseCommand):

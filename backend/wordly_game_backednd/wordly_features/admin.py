@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Words, DayChallenge, UserWord
+from .models import DayChallenge, UserWord, Words
 
 
 @admin.register(Words)

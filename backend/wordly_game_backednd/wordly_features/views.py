@@ -1,10 +1,14 @@
-from rest_framework.decorators import action
 import random
 
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, permissions, response, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.views import APIView
+
 from .models import DayChallenge, UserWord, Words
-from .serializers import ChallengeSerializer, WordInputSerializer, ChallengeWordSerializer
+from .queries import biult_stat
+from .serializers import (ChallengeSerializer, ChallengeWordSerializer,
+                          WordInputSerializer)
 
 
 def random_word():
@@ -48,6 +52,19 @@ def rewiever(word, task):
                 index_value = -1
         couner += 1
     return result
+
+
+class UserStatView(APIView):
+
+    @action(
+        detail=False,
+        permission_classes=[permissions.IsAuthenticated],
+        methods=['GET', ], )
+    def get(self, request):
+        print(request.user.id)
+        data = biult_stat(request.user.id)
+        print(data)
+        return response.Response(data=data, status=status.HTTP_200_OK)
 
 
 class CustomizedGetPostDeleteViewSet(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):

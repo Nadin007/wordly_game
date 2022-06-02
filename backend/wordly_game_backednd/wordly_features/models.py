@@ -7,7 +7,6 @@ from django.db.models.functions import Lower
 
 from user.models import User
 
-
 NEW_FORMAT = '%Y-%m-%d %H:%M'
 
 

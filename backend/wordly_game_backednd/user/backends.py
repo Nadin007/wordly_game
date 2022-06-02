@@ -1,7 +1,9 @@
 from typing import Optional
-from django.contrib.auth.models import AbstractBaseUser
+
 from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.models import AbstractBaseUser
 from django.http import HttpRequest
+
 from .models import User
 
 
