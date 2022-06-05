@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import constraints
+from django.db.models import constraints, Q
 from django.db.models.functions import Lower
 
 from user.models import User
@@ -47,8 +47,12 @@ class DayChallenge(models.Model):
         ordering = ['-date']
         verbose_name = 'DayChallenge'
         verbose_name_plural = 'DayChallenges'
-        constraints = [constraints.UniqueConstraint(
-            fields=['player', 'word'], name='unique task to player')]
+        constraints = [
+            constraints.UniqueConstraint(
+                fields=['player', 'word'], name='unique task to player'),
+            # constraints.UniqueConstraint(
+            #     fields=['player'], condition=Q(is_active=True), name='unique_active_player_task')
+        ]
 
     def __str__(self) -> str:
         return self.STRING_METHOD_MESSAGE.format(

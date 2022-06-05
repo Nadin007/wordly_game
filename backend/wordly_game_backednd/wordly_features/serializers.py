@@ -46,7 +46,7 @@ class ChallengeWordSerializer(serializers.Serializer):
     word = WordSerializer(many=True)
 
     class Meta:
-        fields = ("word",)
+        fields = ("word")
 
 
 class WordInputSerializer(serializers.ModelSerializer):

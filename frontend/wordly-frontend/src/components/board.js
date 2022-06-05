@@ -1,16 +1,31 @@
 import React from "react";
 import {CellsRow} from './cells-row';
 
-export const Board = (props) => {
-    let words = props.words;
-    return <div className="board">
-        <CellsRow word={words[0] ? words[0].word : '' } status={words[0] ? words[0].status : ''}/>
-        <CellsRow word={words[1] ? words[1].word : '' } status={words[1] ? words[1].status : ''}/>
-        <CellsRow word={words[2] ? words[2].word : '' } status={words[2] ? words[2].status : ''}/>
-        <CellsRow word={words[3] ? words[3].word : '' } status={words[3] ? words[3].status : ''}/>
-        <CellsRow word={words[4] ? words[4].word : '' } status={words[4] ? words[4].status : ''}/>
-        <CellsRow word={words[5] ? words[5].word : '' } status={words[5] ? words[5].status : ''}/>
-        
+const rows = 6;
+const fillWords = (words) => {
+    let left = rows - words.length;
+    let allWords = [ ...words ];
+    for (let i = 0; i < left; i++) {
+        allWords.push({ word: "", status: [] });
+    }
 
+    return allWords;
+}
+
+export const Board = (props) => {
+    let words = fillWords(props.words);
+    let isSolved = words.some(w => w.status.every(n => n === 1));
+    let activeWord = isSolved ? undefined : words.find(word => word.status.length === 0);
+
+    return <div className="board">
+        { words.map((w, index) => {
+            return <CellsRow
+                createNewWord={ props.createNewWord }
+                key={ w.word + index }
+                word={ w.word }
+                status={w.status}
+                isActive={w === activeWord}
+            />
+        }) }
     </div>
 }

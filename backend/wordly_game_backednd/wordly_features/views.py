@@ -87,9 +87,14 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
         return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        serializer = ChallengeSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
-            serializer.save(is_active=True, word=get_word(), player=request.user)
+            print("try to create")
+            obj, created = DayChallenge.objects.get_or_create(is_active=True, word=get_word(), player=request.user)
+            print(obj)
+            print(created)
+            print("created")
+            # serializer.get(is_active=True, word=get_word(), player=request.user)
             data = {'status': "New challenge has been created"}
             return response.Response(
                 data, status=status.HTTP_201_CREATED)
@@ -103,7 +108,7 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
         url_path='current',)
     def get_challenge(self, request):
         serializer = ChallengeSerializer(
-            data=request.data, context={'request': request}
+            data={}, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
         task = get_object_or_404(DayChallenge, is_active=True, player=request.user.id)
@@ -113,7 +118,7 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
         }
         response_data = ChallengeWordSerializer(data, context={'request': request})
         return response.Response(
-            response_data.data, status=status.HTTP_200_OK)
+            { 'words': response_data.data, 'results': [ rewiever(w.word, task.word.word) for w in words] }, status=status.HTTP_200_OK)
 
 
 class CustomizedListCreateViewSet(
@@ -137,25 +142,23 @@ class UserWordViewSet(CustomizedListCreateViewSet):
         task = get_object_or_404(
             DayChallenge, is_active=True, player=request.user.id)
         words = Words.objects.filter(user_word__task=task)
-        data = {
-            'word': words
-        }
-        response_data = ChallengeWordSerializer(data=data, context={'request': request})
-        response_data.is_valid(raise_exception=True)
-        return super().list(request, *args, **kwargs)
+        data = {'word': words}
+        response_data = ChallengeWordSerializer(data)
+        return response.Response(
+            { 'words': response_data.data, 'results': [ rewiever(w.word, task.word.word) for w in words] }, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        word = Words.objects.get(word=serializer.data['word'])
         player = self.request.user
-
         task = DayChallenge.objects.get(is_active=True, player=player)
         attempt = UserWord.objects.filter(task=task.id).count()
         if attempt > 6:
             return response.Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
+        serializer.is_valid(raise_exception=True)
+        word = Words.objects.get(word=serializer.data['word'])
+
         if word == task.word:
             try:
                 attempt += 1

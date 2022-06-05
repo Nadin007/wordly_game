@@ -40,6 +40,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'user.identifyMiddleware.identify_middleware',
+    'user.corsMiddleware.cors_middleware',
 ]
 
 ROOT_URLCONF = 'wordly_game_backednd.urls'

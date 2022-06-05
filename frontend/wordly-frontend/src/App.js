@@ -1,49 +1,44 @@
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import { Board } from './components/board';
 import { Header } from './components/header';
+import { Url } from './const';
+
+const reqquestCurrentChallenge = () => {
+    return fetch(`${Url}/word/`, { credentials: "include" })
+}
 
 function App() {
-    let [words, setWords] = useState([
-        {word: '', status: []}
-    ]);
-    let key_handler = (e) => {
-        let letter = e.key;
-        if (words.length < 7) {
-            let current_word = words[words.length - 1];
-            if (current_word.word.length < 5 && letter.length === 1 && letter.match(/[a-zA-Z]/)) {
-                let new_words = [
-                    ...words.slice(0, words.length - 1),
-                    {word: current_word.word + letter, status: []}
-                ]
-                setWords(new_words)
-                return;
-            }
-
-            if (letter === 'Backspace' && current_word.status.length === 0) {
-                let new_words = [
-                    ...words.slice(0, words.length - 1),
-                    {word: current_word.word.slice(0, current_word.word.length - 1), status: []}
-                ]
-                setWords(new_words)
-                return;
-            }
-        }
-    };
+    let [words, setWords] = useState([]);
 
     useEffect(() => {
-        window.addEventListener('keyup', key_handler);
+        fetch(`${Url}/v1/auth/`, { method: 'POST', credentials: "include" })
+            .then(reqquestCurrentChallenge)
+            .then(r => {
+                if (r.ok) {
+                    return r.json();
+                }
 
-        return () => {
-            window.removeEventListener('keyup', key_handler);
-        };
-    }, [words]);
+                return fetch(`${Url}/challenge/`, { method: "POST", credentials: "include" })
+                    .then(reqquestCurrentChallenge)
+                    .then(r => r.json())
+            })
+            .then(w => {
+                let words = w.words.word;
+                let results = w.results;
+                setWords(words.map((w, index) => ({ word: w.word, status: results[index] || [] })));
+            });
+    }, []);
+    
+    let createNewWord = useCallback(word => {
+        setWords([ ...words, word ]);
+    });
 
     return <>
         <Header />
         <div className='game-app'>
-            <Board words = {words} />
+            <Board words = {words} createNewWord={ createNewWord } />
         </div>
     </>
 }
