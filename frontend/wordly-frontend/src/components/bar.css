@@ -1,0 +1,28 @@
+.bar {
+    width: 100%;
+    margin: 6px 0;
+    height: 20px;
+    display: flex;
+    line-height: 20px;
+}
+
+.order-number {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+.bar-line {
+    width: 100%;
+    background-color: rgb(106, 99, 99);
+    min-width: 25px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    padding-right: 3px;
+}
+
+.full-bar {
+    background-color: #6aaa64;
+    text-align: right;
+}

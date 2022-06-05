@@ -1,0 +1,40 @@
+.statistic {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    max-width: 500px;
+    width: 100%;
+    border-radius: 6px;
+    background-color: #fff;
+    box-shadow: 0 0 28px 6px rgba(0, 0, 0, 0.7);
+    padding: 10px;
+}
+.statistic-title {
+    font-size: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.statistic-info-table {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: end;
+    padding-right: 5%;
+}
+.next-button {
+    cursor: pointer;
+    padding: 10px 30px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: #6aaa64;
+    color: #fff;
+    border: none;
+}

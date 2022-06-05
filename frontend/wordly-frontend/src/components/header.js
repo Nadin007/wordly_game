@@ -4,7 +4,7 @@ import './header.css'
 
 export const Header = (props) => {
     return <header>
-        <span className="header-title">Wordly</span>
-        <StatisticBtn />
+        <span className="header-title">Words Quiz</span>
+        <StatisticBtn showStatistic={props.showStatistic} />
     </header>
 }

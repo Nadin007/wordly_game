@@ -1,6 +1,6 @@
 header {
     width: 100%;
-    border-bottom: 1px solid rgb(194, 231, 9);
+    border-bottom: 1px solid rgb(7, 7, 6);
     padding: 10px;
     display: flex;
     overflow: hidden; /* hide all content which escapes currrent element*/

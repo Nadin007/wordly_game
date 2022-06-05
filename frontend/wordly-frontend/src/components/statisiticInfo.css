@@ -1,0 +1,12 @@
+.info-value {
+    font-size: 36px;
+}
+.info-title {
+    font-size: 12px;
+}
+.statistic-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+}
