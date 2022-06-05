@@ -61,17 +61,19 @@ class UserStatView(APIView):
         permission_classes=[permissions.IsAuthenticated],
         methods=['GET', ], )
     def get(self, request):
-        print(request.user.id)
         data = biult_stat(request.user.id)
-        print(data)
         return response.Response(data=data, status=status.HTTP_200_OK)
 
 
-class CustomizedGetPostDeleteViewSet(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+class CustomizedGetPostDeleteViewSet(
+        mixins.DestroyModelMixin, mixins.RetrieveModelMixin,
+        mixins.CreateModelMixin, viewsets.GenericViewSet):
+
     """Base ViewSet for challenge.
     Allowed actions: `retrieve`, `create`, `delete`.
     Other actions returns HTTP 405.
     """
+
     permission_classes = [permissions.IsAuthenticated]
 
 
@@ -89,12 +91,7 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
     def create(self, request, *args, **kwargs):
         serializer = ChallengeSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
-            print("try to create")
-            obj, created = DayChallenge.objects.get_or_create(is_active=True, word=get_word(), player=request.user)
-            print(obj)
-            print(created)
-            print("created")
-            # serializer.get(is_active=True, word=get_word(), player=request.user)
+            serializer.save(is_active=True, word=get_word(), player=request.user)
             data = {'status': "New challenge has been created"}
             return response.Response(
                 data, status=status.HTTP_201_CREATED)
@@ -118,7 +115,8 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
         }
         response_data = ChallengeWordSerializer(data, context={'request': request})
         return response.Response(
-            { 'words': response_data.data, 'results': [ rewiever(w.word, task.word.word) for w in words] }, status=status.HTTP_200_OK)
+            {
+                'words': response_data.data, 'results': [rewiever(w.word, task.word.word) for w in words]}, status=status.HTTP_200_OK)
 
 
 class CustomizedListCreateViewSet(
@@ -145,7 +143,9 @@ class UserWordViewSet(CustomizedListCreateViewSet):
         data = {'word': words}
         response_data = ChallengeWordSerializer(data)
         return response.Response(
-            { 'words': response_data.data, 'results': [ rewiever(w.word, task.word.word) for w in words] }, status=status.HTTP_200_OK)
+            {
+                'words': response_data.data, 'results': [
+                    rewiever(w.word, task.word.word) for w in words]}, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
