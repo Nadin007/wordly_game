@@ -91,7 +91,10 @@ class ChallengeViewSet(CustomizedGetPostDeleteViewSet):
     def create(self, request, *args, **kwargs):
         serializer = ChallengeSerializer(data=request.data, context={'request': request})
         if serializer.is_valid(raise_exception=True):
-            serializer.save(is_active=True, word=get_word(), player=request.user)
+            try:
+                serializer.save(is_active=True, word=get_word(), player=request.user)
+            except Exception:
+                return response.Response(status=status.HTTP_403_FORBIDDEN)
             data = {'status': "New challenge has been created"}
             return response.Response(
                 data, status=status.HTTP_201_CREATED)

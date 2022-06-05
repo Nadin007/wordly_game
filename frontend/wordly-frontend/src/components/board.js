@@ -14,7 +14,7 @@ const fillWords = (words) => {
 
 export const Board = (props) => {
     let words = fillWords(props.words);
-    let isSolved = words.some(w => w.status.every(n => n === 1));
+    let isSolved = words.some(w => w.status.length > 0 && w.status.every(n => n === 1));
     let activeWord = isSolved ? undefined : words.find(word => word.status.length === 0);
 
     return <div className="board">

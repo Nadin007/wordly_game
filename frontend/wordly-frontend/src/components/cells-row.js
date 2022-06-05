@@ -34,7 +34,6 @@ export const CellsRow = (props) => {
                 props.createNewWord({ word, status: status.response });
             })
         }
-
         if (word.length < 5) {
             let new_word = word + letter;
             setWord(new_word)
