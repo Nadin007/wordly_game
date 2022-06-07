@@ -34,8 +34,8 @@ services:
       context: ../backend
       dockerfile: Dockerfile
     volumes:
-      - media_value:/code/wordly_game_backednd/media
-      - static_value:/code/wordly_game_backednd/static
+      - media_value:/code/media
+      - static_value:/code/static
     depends_on:
       - db
     env_file:

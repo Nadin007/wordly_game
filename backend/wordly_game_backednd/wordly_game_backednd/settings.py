@@ -3,6 +3,9 @@ from distutils.util import strtobool
 
 from dotenv import load_dotenv
 
+
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'http://127.0.0.1:8000']
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 dotenv_file = os.path.join(os.path.dirname(BASE_DIR), ".env")
@@ -39,8 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'user.identifyMiddleware.identify_middleware',
-    'user.corsMiddleware.cors_middleware',
+    'user.identifyMiddleware.identify_middleware'
 ]
 
 ROOT_URLCONF = 'wordly_game_backednd.urls'
