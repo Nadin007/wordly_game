@@ -8,7 +8,7 @@ from wordly_features.models import Words
 class Command(BaseCommand):
     """Import a txt file into database
 
-    example: `python3 manage.py load_txt static/data`
+    example: `python3 manage.py load_txt wordly_features/`
     """
     help = (
         "When you call the function, you must pass the path to the folder"
